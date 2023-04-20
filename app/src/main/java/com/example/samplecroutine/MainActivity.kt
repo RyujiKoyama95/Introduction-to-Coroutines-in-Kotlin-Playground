@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -76,5 +77,39 @@ class MainActivity : ComponentActivity() {
     private suspend fun getTemperature(): String {
         delay(1000)
         return "30\\u00b0C"
+    }
+
+    /**
+     * 並列分解
+     */
+    fun main3() {
+        val time = measureTimeMillis {
+            runBlocking {
+                println("step1")
+                println(getWeatherReport())
+                println("step2")
+            }
+        }
+        println("Execution time: ${time / 1000.0} seconds")
+    }
+
+    private suspend fun getForecast2(): String {
+        // delay()はsuspend関数
+        delay(1000)
+        return "Sunny"
+    }
+
+    private suspend fun getTemperature2(): String {
+        delay(1000)
+        return "30\\u00b0C"
+    }
+
+    // coroutineScope{}は起動したコルーチンを含むブロック内の全ての処理が終わるまで戻らない。
+    // coroutineScope{}は関数内部で処理を同時実行していても、全ての処理が終わるまで戻らないため、
+    // 呼び出し元では同期オペレーションに見える。
+    private suspend fun getWeatherReport() = coroutineScope {
+        val forecast: Deferred<String> = async { getForecast2() }
+        val temperature: Deferred<String> = async { getTemperature2() }
+        "${forecast.await()}, ${temperature.await()}"
     }
 }
