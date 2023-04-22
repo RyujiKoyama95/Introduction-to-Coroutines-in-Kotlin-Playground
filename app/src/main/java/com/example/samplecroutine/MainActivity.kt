@@ -112,4 +112,36 @@ class MainActivity : ComponentActivity() {
         val temperature: Deferred<String> = async { getTemperature2() }
         "${forecast.await()}, ${temperature.await()}"
     }
+
+    /**
+     * 例外とキャンセル
+     */
+    fun main4() {
+        val time = measureTimeMillis {
+            runBlocking {
+                println("step1")
+                println(getWeatherReport2())
+                println("step2")
+            }
+        }
+        println("Execution time: ${time / 1000.0} seconds")
+    }
+
+    private suspend fun getForecast3(): String {
+        // delay()はsuspend関数
+        delay(1000)
+        return "Sunny"
+    }
+
+    private suspend fun getTemperature3(): String {
+        delay(1000)
+        throw AssertionError("Temperature is invalid")
+        return "30\\u00b0C"
+    }
+
+    private suspend fun getWeatherReport2() = coroutineScope {
+        val forecast: Deferred<String> = async { getForecast3() }
+        val temperature: Deferred<String> = async { getTemperature3() }
+        "${forecast.await()}, ${temperature.await()}"
+    }
 }
