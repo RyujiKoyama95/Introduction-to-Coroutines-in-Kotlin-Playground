@@ -134,7 +134,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private suspend fun getTemperature3(): String {
-        delay(1000)
+        delay(500)
         throw AssertionError("Temperature is invalid")
         return "30\\u00b0C"
     }
