@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -114,14 +115,17 @@ class MainActivity : ComponentActivity() {
     }
 
     /**
-     * 例外とキャンセル
+     * 例外 1.普通にtry catch
      */
     fun main4() {
         val time = measureTimeMillis {
             runBlocking {
-                println("step1")
-                println(getWeatherReport2())
-                println("step2")
+                try {
+                    println(getWeatherReport2())
+                } catch (e: AssertionError) {
+                    println("Caught exception in runBlocking(): $e")
+                    println("Report unavailable at this time")
+                }
             }
         }
         println("Execution time: ${time / 1000.0} seconds")
@@ -143,5 +147,76 @@ class MainActivity : ComponentActivity() {
         val forecast: Deferred<String> = async { getForecast3() }
         val temperature: Deferred<String> = async { getTemperature3() }
         "${forecast.await()}, ${temperature.await()}"
+    }
+
+    /**
+     * 例外 2.try catchをasync{}で囲む
+     */
+    fun main5() {
+        val time = measureTimeMillis {
+            runBlocking {
+                println(getWeatherReport3())
+            }
+        }
+        println("Execution time: ${time / 1000.0} seconds")
+    }
+
+    private suspend fun getForecast4(): String {
+        // delay()はsuspend関数
+        delay(1000)
+        return "Sunny"
+    }
+
+    private suspend fun getTemperature4(): String {
+        delay(500)
+        throw AssertionError("Temperature is invalid")
+        return "30\\u00b0C"
+    }
+
+    private suspend fun getWeatherReport3() = coroutineScope {
+        val forecast: Deferred<String> = async { getForecast4() }
+        val temperature: Deferred<String> = async {
+            try {
+                getTemperature4()
+            } catch (e: AssertionError) {
+                println("Caught exception $e")
+                "{ No temperature found }"
+            }
+        }
+        "${forecast.await()}, ${temperature.await()}"
+    }
+
+    /**
+     * キャンセル
+     */
+    fun main6() {
+        val time = measureTimeMillis {
+            runBlocking {
+                println("step1")
+                println(getWeatherReport4())
+                println("step2")
+            }
+        }
+        println("Execution time: ${time / 1000.0} seconds")
+    }
+
+    private suspend fun getForecast5(): String {
+        delay(1000)
+        return "Sunny"
+    }
+
+    private suspend fun getTemperature5(): String {
+        delay(1000)
+        return "30\\u00b0C"
+    }
+
+    private suspend fun getWeatherReport4() = coroutineScope {
+        val forecast: Deferred<String> = async { getForecast5() }
+        val temperature: Deferred<String> = async { getTemperature5() }
+
+        delay(500)
+        temperature.cancel()
+
+        "${forecast.await()}"
     }
 }
