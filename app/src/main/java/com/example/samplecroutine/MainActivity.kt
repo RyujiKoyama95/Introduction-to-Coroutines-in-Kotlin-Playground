@@ -26,6 +26,7 @@ class MainActivity : ComponentActivity() {
             runBlocking {
                 println("step1")
                 // launch{}でコルーチン起動。(launch{}ごとにコルーチンがある)
+                // launch{}はJobのインスタンスを返す
                 // launch{}はブロック内の処理が終了するのを待たずに戻るため、すぐに次の処理に移行する。
                 // 非同期関数(launch{})は、関数が戻っても、タスクはまだ終了していない。
                 launch { printForecast() }
