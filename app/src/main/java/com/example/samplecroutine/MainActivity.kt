@@ -15,6 +15,14 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
+    /**
+     * memo
+     */
+    // launch{}はJobのインスタンスを返す。
+    // ジョブはコルーチンへのハンドル(参照)を保持するため、そのライフサイクルを管理できる。
+    // ジョブはタスクが必要無くなったらコルーチンをキャンセルするなど、
+    // ライフサイクル、つまりコルーチンの存続期間制御するために使用する。
+
 
     /**
      * launch{}パターン
