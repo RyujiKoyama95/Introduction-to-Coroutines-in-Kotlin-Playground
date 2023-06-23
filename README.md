@@ -1,3 +1,4 @@
-Codelab by Google
+# Introduction to Coroutines in Kotlin Playground
 
-Introduction to Coroutines in Kotlin Playground
+- For Codelab practice
+- Codelab by Google
